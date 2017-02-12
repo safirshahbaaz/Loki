@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <title>Loki</title>
+    <head>
+        <link rel="icon" href="./static/loki.jpg">
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js"
+                integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+              integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+                integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+                crossorigin="anonymous"></script>
+        <script type="text/javascript"
+                src="https://cdn.rawgit.com/gdi2290/angular-websocket/v1.0.9/angular-websocket.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+        <script src="http://rawgit.com/angular-ui/angular-google-maps/2.0.X/dist/angular-google-maps.js"></script>
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyB7GN3xAzg49710-kfwx-IMvI97WUcZBAE&libraries=places&sensor=false"></script>
+    </head>
+    <body ng-app="myApp">
+        <div ng-controller="LokiController">
+            <nav class="navbar navbar-light navbar-static-top"  style="background-color: #000000; color: #00cc00;">
+                <div class="container">
+                    <!-- <a class="navbar-brand" href="#">Loki</a> -->
+                    <a href="#" class="navbar-left"><img src="./static/loki.jpg" height="50" width="50"></a>
+                </div>
+            </nav>
+            <div class="container">
+                <div id="main-content">
+                    <div class="row">
+                        <div class="col-lg-8 col-md-offset-2">
+                            <h2>Create Havoc here!</h2>
+                            <form role="form">
+                                <div class="form-group">
+                                    <label class="control-label" for="Emergencies">Emergencies:</label>
+                                    <div class="col-sm-10">
+                                        <div ng-repeat="check in chkbxs">
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" ng-model="check.val" >{{!check.label}}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Locations:</label>
+                                    <li ng-repeat='address in addresses'>{{!address}}</li>
+                                </div>
+                                <div class="form-group">
+                                    <input type='text' id='pac-input' ng-model='address' >
+                                    <input type="button" value="Add" ng-click="addLocation()">
+                                </div>
+                            </form>
+                            <div class="col-lg-4 ">
+                                <div class="map_canvas_loc" >
+                                    <ui-gmap-google-map  center="map.center" zoom='map.zoom' control='control'>
+                                        <ui-gmap-marker ng-repeat='m in markers' coords="m.coords" idkey="m.id">
+                                            <ui-gmap-window show="show"><div>{{!m.title}}</div></ui-gmap-window>
+                                        </ui-gmap-marker>
+                                    </ui-gmap-google-map>
+                                </div>
+                            </div>
+                            <div class="col-sm-offset-2 col-sm-8">
+                                <button class="btn btn-success" ng-model="preferenceClicked"
+                                        ng-init="preferenceClicked=false"
+                                        ng-click="subscribeToLocations(); preferenceClicked=true">Destroy!
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="./static/js/app.js"></script>
+        <script type="text/javascript" src="./static/js/EmergenciesGetter.js"></script>
+        <script type="text/javascript" src="./static/js/LokiController.js"></script>
+        <script type="text/javascript" src="./static/js/LokiGetter.js"></script>
+        <link rel="stylesheet" type="text/css" href="./static/css/style.css">
+    </body>
+</html>
