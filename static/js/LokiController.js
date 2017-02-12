@@ -75,6 +75,7 @@ app.controller('LokiController', ['$scope', '$window','$filter', 'LokiGetter',
                         title: address
                     };
                     $scope.markers.push(marker);
+                    console.log('Bankai');
                     console.log($scope.markers.coords);
                     for (var i = 0, length = $scope.markers.length; i < length; i++) {
                         var marker = $scope.markers[i].coords;
@@ -100,7 +101,6 @@ app.controller('LokiController', ['$scope', '$window','$filter', 'LokiGetter',
                 console.log("marker:"+ marker);
                 for (i = 0; i < subscriptionList.length; i++) {
                     console.log("Subscribing for:" + subscriptionList[i]);
-
                     LokiGetter.postEmergency(marker, subscriptionList[i], emergencySuccessFunction, 
                         errorFunction);
                 }
