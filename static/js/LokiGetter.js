@@ -1,17 +1,15 @@
 app.factory('LokiGetter', ['$http','$window',"$q",function ($http,$window,$q) {
     return {
-        postEmergenciesSubscription: function (userId, accessToken, parameters, successFunction, 
-            errorFunction) {
-            console.log("postEmergenciesSubscription");
+        postEmergency: function (marker, emergency, successFunction, errorFunction) {
+            console.log("postEmergency");
+
             var message = {
-                'dataverseName': "channels",
-                'userId': userId,
-                'accessToken': accessToken,
-                'channelName': 'recentEmergenciesOfTypeChannel',
-                'parameters': [parameters]
+                'marker': marker,
+                'emergency': emergency
             };
+
             $http({
-                url: '/subscribe',
+                url: '/create',
                 method: "POST",
                 data: message
             }).then(successFunction, errorFunction);
