@@ -5,6 +5,7 @@ import os
 from threading import Lock
 import socket
 import datetime
+import uuid
 
 import simplejson as json
 import tornado.httpclient
@@ -32,38 +33,43 @@ class MainHandler(BaseHandler):
         self.render("index.html")
 
 class CreateEmergencyHandler(BaseHandler):
-	@tornado.gen.coroutine
-	def post(self):
-		log.info(str(self.request.body, encoding='utf-8'))
-		post_data = json.loads(str(self.request.body, encoding='utf-8'))
-        
+    @tornado.gen.coroutine
+    def post(self):
+        log.info(str(self.request.body, encoding='utf-8'))
+        post_data = json.loads(str(self.request.body, encoding='utf-8'))
+        response = None
+
         log.debug(post_data)
 
         try:
-        	marker = post_data['marker']
-        	emergency = post_data['emergency']
+            marker = post_data['marker']
+            emergency = post_data['emergency']
 
-        	timestamp = datetime.datetime.utcnow()
-			timestamp = timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
-			location = 'circle(\"%f,%f %f\")' % (marker['latitude'], marker['longitude'], 1000)
+            timestamp = datetime.datetime.utcnow()
+            #print(type(timestamp))
+            timestamp = timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
+            #print(type(timestamp))
+            location = 'circle(\"%f,%f %f\")' % (marker['latitude'], marker['longitude'], 1000)
 
-			data = {
-			"severity": 1, 
-			"impactZone": location, 
-			"timeoffset": timestamp, 
-			"duration": 900.0, 
-			"message": emergency + 'alert!', 
-			"emergencyType": emergency}
+            data = {
+            "reportId": str(uuid.uuid4()),
+            "severity": 1, 
+            "impactZone": location,
+            "timeoffset": str(datetime.datetime.utcnow()),
+            "timestamp": timestamp, 
+            "duration": 900.0, 
+            "message": emergency + 'alert!', 
+            "emergencyType": emergency}
 
-			dataString = json.dumps(data)
+            dataString = json.dumps(data)
 
-			log.debug(dataString)
+            print(dataString)
 
-			sock1 = socket()
-    		sock1.connect((128.195.52.76, 10001))
+            sock1 = socket.socket()
+            sock1.connect(("promethium.ics.uci.edu", 10004))
 
-    		sock1.sendall(dataString.encode('utf-8'))
-    		sock1.close()
+            sock1.sendall(dataString.encode('utf-8'))
+            sock1.close()
 
         except KeyError as e:
             log.info('Parse error for ' + str(e) + ' in ' + str(post_data))
@@ -84,7 +90,7 @@ def start_server():
         (r'/create', CreateEmergencyHandler)
     ], **settings)
 
-    application.listen(8989)
+    application.listen(16001)
     tornado.ioloop.IOLoop.current().start()
     
 if __name__ == '__main__':

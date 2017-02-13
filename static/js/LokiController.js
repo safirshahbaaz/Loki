@@ -25,7 +25,8 @@ app.controller('LokiController', ['$scope', '$window','$filter', 'LokiGetter',
             console.log("counter:" + counter);
 
             if(counter == $scope.length*$scope.markers.length){
-                //Do something here
+                $window.alert("You have created enough havoc :(");
+                $window.location.reload();
             }
         };
 
