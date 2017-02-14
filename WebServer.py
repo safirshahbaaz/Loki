@@ -5,6 +5,7 @@ import os
 from threading import Lock
 import socket
 import datetime
+import time
 import uuid
 
 import simplejson as json
@@ -46,29 +47,36 @@ class CreateEmergencyHandler(BaseHandler):
             emergency = post_data['emergency']
 
             timestamp = datetime.datetime.utcnow()
-            #print(type(timestamp))
             timestamp = timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
-            #print(type(timestamp))
-            location = 'circle(\"%f,%f %f\")' % (marker['latitude'], marker['longitude'], 1000)
 
+            location = 'circle("%f,%f %f")' % (marker['latitude'], marker['longitude'], 1000)
+            
             data = {
-            "reportId": str(uuid.uuid4()),
+            "reportId": 'uuid("{0}")'.format(uuid.uuid4()),
             "severity": 1, 
             "impactZone": location,
-            "timeoffset": str(datetime.datetime.utcnow()),
-            "timestamp": timestamp, 
+            "timeoffset": time.time(),
+            "timestamp": 'datetime("{0}")'.format(timestamp), 
             "duration": 900.0, 
-            "message": emergency + 'alert!', 
+            "message": emergency + " alert!", 
             "emergencyType": emergency}
 
             dataString = json.dumps(data)
 
+            dataString = dataString.replace('"uuid(\\\"', 'uuid("')
+            dataString = dataString.replace('"circle(\\\"', 'circle("')
+            dataString = dataString.replace('\\\")"', '")')
+            dataString = dataString.replace('"datetime(\\\"', 'datetime("')
+
             print(dataString)
 
-            sock1 = socket.socket()
-            sock1.connect(("promethium.ics.uci.edu", 10004))
+            sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-            sock1.sendall(dataString.encode('utf-8'))
+            iostream = tornado.iostream.IOStream(socket=sock1)
+            yield iostream.connect(("promethium.ics.uci.edu", 10010))
+            yield iostream.write(dataString.encode('utf-8'))
+
+            iostream.close()
             sock1.close()
 
         except KeyError as e:
@@ -90,7 +98,7 @@ def start_server():
         (r'/create', CreateEmergencyHandler)
     ], **settings)
 
-    application.listen(16001)
+    application.listen(16002)
     tornado.ioloop.IOLoop.current().start()
     
 if __name__ == '__main__':

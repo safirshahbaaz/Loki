@@ -6,20 +6,50 @@ create type EmergencyReport if not exists as open {
 	reportId: uuid,
 	severity: int,
 	impactZone: circle,
-	timeoffset: float,
+	timeoffset: double,
 	timestamp: datetime,
-	duration: float,
+	duration: double,
 	message: string,
 	emergencyType: string
 }
-
 
 create dataset EmergencyReports(EmergencyReport) primary key reportId;
 
 create feed ReportFeed using socket_adapter
 (
-	("sockets"="promethium.ics.uci.edu:10007"),
+	("sockets"="promethium.ics.uci.edu:10010"),
 	("address-type"="IP"),
 	("type-name"="EmergencyReport"),
 	("format"="adm")
 );
+
+connect feed ReportFeed to dataset EmergencyReports;
+
+------------------------------------------------------------------------------------
+
+drop dataverse channels2 if exists;
+create dataverse channels2;
+use dataverse channels2;
+
+create type EmergencyReport if not exists as open {
+	reportId: uuid
+}
+
+create dataset EmergencyReports(EmergencyReport) primary key reportId;
+
+create feed ReportFeed using socket_adapter
+(
+	("sockets"="promethium.ics.uci.edu:10010"),
+	("address-type"="IP"),
+	("type-name"="EmergencyReport"),
+	("format"="adm")
+);
+
+connect feed ReportFeed to dataset EmergencyReports;
+
+--------------------------------------------------------------------------------------
+
+use dataverse channels2;
+for $t in dataset channels2.EmergencyReports return $t;
+
+
